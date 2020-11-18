@@ -1201,6 +1201,8 @@ contains
           write(iulog,*) "qflx_liq_grnd*dtime  = ", qflx_liq_grnd(c)*dtime
           write(iulog,*) "qflx_liqdew_to_top_layer*dtime  = ", qflx_liqdew_to_top_layer(c)*dtime
           write(iulog,*) "qflx_liqevap_from_top_layer*dtime = ", qflx_liqevap_from_top_layer(c)*dtime
+          write(iulog,*) "qflx_liq_grnd        = ", qflx_liq_grnd(c)    ! add for test
+          write(iulog,*) "sourcefile           = ", sourcefile          ! add for test
           call endrun("In UpdateState_TopLayerFluxes, h2osoi_liq has gone significantly negative")
        end if
 

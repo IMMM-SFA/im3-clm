@@ -55,6 +55,7 @@ contains
     real(r8) :: co2_ppmv_diag        ! temporary
     real(r8) :: co2_ppmv_prog        ! temporary
     real(r8) :: co2_ppmv_val         ! temporary
+    real(r8) :: prec_limit           ! check for tiny negative values of precip
     integer  :: co2_type_idx         ! integer flag for co2_type options
     real(r8) :: esatw                ! saturation vapor pressure over water (Pa)
     real(r8) :: esati                ! saturation vapor pressure over ice (Pa)
@@ -110,8 +111,6 @@ contains
 
        wateratm2lndbulk_inst%forc_flood_grc(g)   = -x2l(index_x2l_Flrr_flood,i)  
 
-!tcx       wateratm2lndbulk_inst%volr_grc(g)   = x2l(index_x2l_Flrr_volr,i) * (ldomain%area(g) * 1.e6_r8)
-!tcx       wateratm2lndbulk_inst%volrmch_grc(g)= x2l(index_x2l_Flrr_volrmch,i) * (ldomain%area(g) * 1.e6_r8)
        wateratm2lndbulk_inst%volr_grc(g)   = 0._r8
        wateratm2lndbulk_inst%volrmch_grc(g)= 0._r8
 
@@ -136,6 +135,14 @@ contains
        forc_rainl                                    = x2l(index_x2l_Faxa_rainl,i)   ! mm/s
        forc_snowc                                    = x2l(index_x2l_Faxa_snowc,i)   ! mm/s
        forc_snowl                                    = x2l(index_x2l_Faxa_snowl,i)   ! mm/s
+       ! tcraig, check for negative values as this causing problems in CTSM soil
+       ! only set to zero if they are very small negative values, otherwise let the code fail
+       ! typical max values of precip are 1.0e-4, set prec_limit to several orders of magnitude smaller
+       prec_limit = -1.0e-16
+       if (forc_rainc < 0._r8 .and. forc_rainc > prec_limit) forc_rainc = 0._r8
+       if (forc_rainl < 0._r8 .and. forc_rainl > prec_limit) forc_rainl = 0._r8
+       if (forc_snowc < 0._r8 .and. forc_snowc > prec_limit) forc_snowc = 0._r8
+       if (forc_snowl < 0._r8 .and. forc_snowl > prec_limit) forc_snowl = 0._r8
 
        ! atmosphere coupling, for prognostic/prescribed aerosols
        atm2lnd_inst%forc_aer_grc(g,1)                = x2l(index_x2l_Faxa_bcphidry,i)

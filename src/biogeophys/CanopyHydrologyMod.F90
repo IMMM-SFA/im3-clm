@@ -467,6 +467,12 @@ contains
 
         qflx_liq_above_canopy(p) = forc_rain(c) + qflx_irrig_sprinkler(p)
         forc_snow_patch(p) = forc_snow_col(c)
+        if (p == 133925) then ! add for test
+           write(iulog,*) "Canopy check: p   =",p ! add for test
+           write(iulog,*) "  qflx_liq_above_canopy=",qflx_liq_above_canopy(p) ! add for test
+           write(iulog,*) "  forc_rain            =",forc_rain(c) ! add for test
+           write(iulog,*) "  qflx_irrig_sprinkler =",qflx_irrig_sprinkler(p) ! add for test
+        end if ! add for test 
      end do
 
    end subroutine SumFlux_TopOfCanopyInputs
@@ -544,6 +550,10 @@ contains
            qflx_intercepted_snow(p) = forc_snow(p) * fpisnow
            qflx_intercepted_liq(p) = qflx_liq_above_canopy(p) * fpiliq
 
+           if (p == 133925) then ! add for test
+              write(iulog,*) "pass check: p   =",p ! add for test 
+              write(iulog,*) "qflx_through_liq=",qflx_through_liq(p) ! add for test
+           end if ! add for test
         else
            ! Note that special landunits will be handled here, in addition to soil points
            ! with frac_veg_nosno == 0.
@@ -556,6 +566,10 @@ contains
               qflx_through_snow(p) = forc_snow(p)
               qflx_through_liq(p)  = qflx_liq_above_canopy(p)
            end if
+           if (p == 133925) then ! add for test
+              write(iulog,*) "fail check: p   =",p ! add for test
+              write(iulog,*) "qflx_through_liq=",qflx_through_liq(p) ! add for test
+           end if ! add for test
         end if
      end do
 
@@ -1098,6 +1112,15 @@ contains
         ! SnowHydrologyMod with the comment, "all snow falls on ground, no snow on
         ! h2osfc".
         qflx_snow_h2osfc(c) = 0._r8
+        if (c == 73418) then ! add for test
+           write(iulog,*) "c            =",c ! add for test
+           do p = col%patchi(c), col%patchf(c) ! add for test
+              write(iulog,*) "p                =", p                    ! add for test
+              write(iulog,*) "qflx_through_liq =", qflx_through_liq(p)  ! add for test
+              write(iulog,*) "qflx_liqcanfall  =", qflx_liqcanfall(p)   ! add for test
+              write(iulog,*) "qflx_irrig_drip  =", qflx_irrig_drip(p)   ! add for test
+           end do   ! add for test
+         end if     ! add for test
      end do
 
      end associate

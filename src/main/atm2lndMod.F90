@@ -335,6 +335,12 @@ contains
           snow_to_rain_conversion_c(c) = 0._r8
           eflx_sh_precip_conversion(c) = 0._r8
        end if
+       if (c == 73418) then  ! add for test
+          write(iulog,*) "============" ! add for test
+          write(iulog,*) "snow/rain not repartition" ! add for test
+          write(iulog,*) "    snow                =",forc_snow_c(c)  ! add for test
+          write(iulog,*) "    rain                =",forc_rain_c(c)  ! add for test
+       end if  ! add for test
     end do
 
     ! Optionally, convert rain to snow or vice versa based on forc_t_c
@@ -368,6 +374,12 @@ contains
                   snow_to_rain = snow_to_rain_conversion_c(c), &
                   sens_heat_flux = eflx_sh_precip_conversion(c))
           end if
+          if (c == 73418) then  ! add for test
+             write(iulog,*) "============" ! add for test
+             write(iulog,*) "snow/rain repartition" ! add for test
+             write(iulog,*) "    snow                =",forc_snow_c(c)  ! add for test
+             write(iulog,*) "    rain                =",forc_rain_c(c)  ! add for test
+          end if  ! add for test
        end do
     end if
 
