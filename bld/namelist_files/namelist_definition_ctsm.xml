@@ -207,11 +207,7 @@ formulation (1).
 </entry>
 
 <entry id="fire_method" type="char*80" category="clm_physics"
-<<<<<<< HEAD
-       group="cnfire_inparm" valid_values="nofire,li2014qianfrc,li2016crufrc,li2021gswpfrc" >
-=======
-       group="cnfire_inparm" valid_values="nofire,li2014qianfrc,li2016crufrc,spitfire" >
->>>>>>> hillslope_hydrology
+       group="cnfire_inparm" valid_values="nofire,li2014qianfrc,li2016crufrc,li2021gswpfrc,spitfire" >
 The method type to use for CNFire
 
 nofire:        Turn fire effects off

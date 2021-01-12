@@ -2701,10 +2701,6 @@ contains
                dim1name='levlak', &
                long_name='coordinate lake levels', units='m', ncid=nfid(t))
           call ncd_defvar(varname='levdcmp', xtype=tape(t)%ncprec, dim1name='levdcmp', &
-<<<<<<< HEAD
-               long_name='coordinate levels for soil decomposition variables', units='m', ncid=nfid(t))
-
-=======
                long_name='coordinate soil levels', units='m', ncid=nfid(t))
 
           if (tape(t)%dov2xy) then
@@ -2739,7 +2735,6 @@ contains
                   ncid=nfid(t))             
           end if
       
->>>>>>> hillslope_hydrology
           if(use_fates)then
 
              call ncd_defvar(varname='fates_levscls', xtype=tape(t)%ncprec, dim1name='fates_levscls', &
