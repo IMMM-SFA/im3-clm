@@ -129,6 +129,12 @@ module clm_varctl
   ! true => separate crop landunit is not created by default
   logical, public :: create_crop_landunit = .false.     
   
+  ! number of hillslopes per landunit
+  integer, public :: nhillslope = 0
+
+  ! maximum number of hillslope columns per landunit
+  integer, public :: nmax_col_per_hill = 1
+
   ! do not irrigate by default
   logical, public :: irrigate = .false.            
 
@@ -199,6 +205,9 @@ module clm_varctl
   ! which snow cover fraction parameterization to use
   character(len=64), public :: snow_cover_fraction_method
 
+  ! true => repartition rain/snow from atm based on temperature
+  logical,  public :: repartition_rain_snow = .false.
+
   ! true => write global average diagnostics to std out
   logical,  public :: wrtdia       = .false.            
 
@@ -230,13 +239,16 @@ module clm_varctl
   integer, public            :: fates_parteh_mode = -9                 ! 1 => carbon only
                                                                        ! 2 => C+N+P (not enabled yet)
                                                                        ! no others enabled
-
-  logical, public            :: use_fates_spitfire = .false.           ! true => use spitfire model
+  integer, public            :: fates_spitfire_mode = 0                
+  ! 0 for no fire; 1 for constant ignitions; > 1 for external data (lightning and/or anthropogenic ignitions)
+  ! see bld/namelist_files/namelist_definition_clm4_5.xml for details
   logical, public            :: use_fates_logging = .false.            ! true => turn on logging module
   logical, public            :: use_fates_planthydro = .false.         ! true => turn on fates hydro
+  logical, public            :: use_fates_cohort_age_tracking = .false. ! true => turn on cohort age tracking
   logical, public            :: use_fates_ed_st3   = .false.           ! true => static stand structure
   logical, public            :: use_fates_ed_prescribed_phys = .false. ! true => prescribed physiology
   logical, public            :: use_fates_inventory_init = .false.     ! true => initialize fates from inventory
+  logical, public            :: use_fates_fixed_biogeog = .false.           ! true => use fixed biogeography mode
   character(len=256), public :: fates_inventory_ctrl_filename = ''     ! filename for inventory control
 
   !----------------------------------------------------------
@@ -288,6 +300,12 @@ module clm_varctl
   integer, public :: soil_layerstruct_userdefined_nlevsoi = iundef
 
   !----------------------------------------------------------
+  ! hillslope hydrology switch
+  !----------------------------------------------------------
+
+  logical, public :: use_hillslope = .false. ! true => use multi-column hillslope hydrology
+
+  !----------------------------------------------------------
   ! plant hydraulic stress switch
   !----------------------------------------------------------
 
@@ -305,6 +323,9 @@ module clm_varctl
 
   ! true => CLM glacier area & topography changes dynamically 
   logical , public :: glc_do_dynglacier = .false.           
+
+  ! true => downscale longwave radiation
+  logical , public :: glcmec_downscale_longwave = .true.    
 
   ! number of days before one considers the perennially snow-covered point 'land ice'
   integer , public :: glc_snow_persistence_max_days = 7300  

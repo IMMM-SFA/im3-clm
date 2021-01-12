@@ -111,8 +111,9 @@ contains
     !
     ! !USES:
     use clm_time_manager     , only : get_curr_date
-    use clm_varctl           , only : use_lai_streams
+    use clm_varctl           , only : use_lai_streams, fates_spitfire_mode
     use SatellitePhenologyMod, only : lai_advance
+    use CNFireFactoryMod     , only : scalar_lightning
     !
     ! !ARGUMENTS:
     implicit none
@@ -426,6 +427,10 @@ contains
        end if
        call bgc_vegetation_inst%InterpFileInputs(bounds_proc)
        call t_stopf('bgc_interp')
+    ! fates_spitfire_mode is assigned an integer value in the namelist
+    ! see bld/namelist_files/namelist_definition_clm4_5.xml for details
+    else if (fates_spitfire_mode > scalar_lightning) then
+       call clm_fates%InterpFileInputs(bounds_proc)
     end if
 
     ! Get time varying urban data
@@ -468,7 +473,7 @@ contains
             atm_topo = atm2lnd_inst%forc_topo_grc(bounds_clump%begg:bounds_clump%endg))
 
        call downscale_forcings(bounds_clump, &
-            topo_inst, atm2lnd_inst, water_inst%wateratm2lndbulk_inst, &
+            topo_inst, atm2lnd_inst, surfalb_inst, water_inst%wateratm2lndbulk_inst, &
             eflx_sh_precip_conversion = energyflux_inst%eflx_sh_precip_conversion_col(bounds_clump%begc:bounds_clump%endc))
 
        call set_atm2lnd_water_tracers(bounds_clump, &
@@ -845,6 +850,7 @@ contains
        call t_startf('hydro_without_drainage')
 
        call HydrologyNoDrainage(bounds_clump,                                &
+            filter(nc)%num_hillslope, filter(nc)%hillslopec,                 &
             filter(nc)%num_nolakec, filter(nc)%nolakec,                      &
             filter(nc)%num_hydrologyc, filter(nc)%hydrologyc,                &
             filter(nc)%num_urbanc, filter(nc)%urbanc,                        &
@@ -1014,12 +1020,13 @@ contains
 
        call t_startf('hydro2_drainage')
 
-       call HydrologyDrainage(bounds_clump,                   &
+       call HydrologyDrainage(bounds_clump,                    &
+            filter(nc)%num_hillslope, filter(nc)%hillslopec,    &
             filter(nc)%num_nolakec, filter(nc)%nolakec,       &
             filter(nc)%num_hydrologyc, filter(nc)%hydrologyc, &
             filter(nc)%num_urbanc, filter(nc)%urbanc,         &
             filter(nc)%num_do_smb_c, filter(nc)%do_smb_c,     &
-            atm2lnd_inst, glc2lnd_inst, temperature_inst,     &
+            glc2lnd_inst, temperature_inst,     &
             soilhydrology_inst, soilstate_inst, water_inst%waterstatebulk_inst, &
             water_inst%waterdiagnosticbulk_inst, water_inst%waterbalancebulk_inst, &
             water_inst%waterfluxbulk_inst, water_inst%wateratm2lndbulk_inst, &
@@ -1054,7 +1061,8 @@ contains
           call clm_fates%dynamics_driv( nc, bounds_clump,                        &
                atm2lnd_inst, soilstate_inst, temperature_inst, active_layer_inst, &
                water_inst%waterstatebulk_inst, water_inst%waterdiagnosticbulk_inst, &
-               water_inst%wateratm2lndbulk_inst, canopystate_inst, soilbiogeochem_carbonflux_inst)
+               water_inst%wateratm2lndbulk_inst, canopystate_inst, soilbiogeochem_carbonflux_inst, &
+               frictionvel_inst)
 
           ! TODO(wjs, 2016-04-01) I think this setFilters call should be replaced by a
           ! call to reweight_wrapup, if it's needed at all.
@@ -1308,6 +1316,10 @@ contains
        if (use_crop) then
           call crop_inst%CropUpdateAccVars(bounds_proc, &
                temperature_inst%t_ref2m_patch, temperature_inst%t_soisno_col)
+       end if
+
+       if(use_fates) then
+          call clm_fates%UpdateAccVars(bounds_proc)
        end if
 
        call t_stopf('accum')

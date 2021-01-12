@@ -219,13 +219,15 @@ contains
 
     ! FATES Flags
     namelist /clm_inparm/ fates_paramfile, use_fates,   &
-          use_fates_spitfire, use_fates_logging,        &
+          fates_spitfire_mode, use_fates_logging,       &
           use_fates_planthydro, use_fates_ed_st3,       &
+          use_fates_cohort_age_tracking,                &
           use_fates_ed_prescribed_phys,                 &
           use_fates_inventory_init,                     &
+          use_fates_fixed_biogeog,                      &
           fates_inventory_ctrl_filename,                &
           fates_parteh_mode
-
+    
 
     ! CLM 5.0 nitrogen flags
     namelist /clm_inparm/ use_flexibleCN, use_luna
@@ -240,6 +242,8 @@ contains
     namelist /clm_inparm/ use_lai_streams
 
     namelist /clm_inparm/ use_bedrock
+
+    namelist /clm_inparm/ use_hillslope
 
     namelist /clm_inparm/ use_hydrstress
 
@@ -700,12 +704,14 @@ contains
 
     call mpi_bcast (use_fates, 1, MPI_LOGICAL, 0, mpicom, ier)
 
-    call mpi_bcast (use_fates_spitfire, 1, MPI_LOGICAL, 0, mpicom, ier)
+    call mpi_bcast (fates_spitfire_mode, 1, MPI_INTEGER, 0, mpicom, ier)
     call mpi_bcast (use_fates_logging, 1, MPI_LOGICAL, 0, mpicom, ier)
     call mpi_bcast (use_fates_planthydro, 1, MPI_LOGICAL, 0, mpicom, ier)
+    call mpi_bcast (use_fates_cohort_age_tracking, 1, MPI_LOGICAL, 0, mpicom, ier)
     call mpi_bcast (use_fates_ed_st3, 1, MPI_LOGICAL, 0, mpicom, ier)
     call mpi_bcast (use_fates_ed_prescribed_phys,  1, MPI_LOGICAL, 0, mpicom, ier)
     call mpi_bcast (use_fates_inventory_init, 1, MPI_LOGICAL, 0, mpicom, ier)
+    call mpi_bcast (use_fates_fixed_biogeog, 1, MPI_LOGICAL, 0, mpicom, ier)
     call mpi_bcast (fates_inventory_ctrl_filename, len(fates_inventory_ctrl_filename), MPI_CHARACTER, 0, mpicom, ier)
     call mpi_bcast (fates_paramfile, len(fates_paramfile) , MPI_CHARACTER, 0, mpicom, ier)
     call mpi_bcast (fates_parteh_mode, 1, MPI_INTEGER, 0, mpicom, ier)
@@ -735,6 +741,8 @@ contains
     call mpi_bcast (use_lai_streams, 1, MPI_LOGICAL, 0, mpicom, ier)
 
     call mpi_bcast (use_bedrock, 1, MPI_LOGICAL, 0, mpicom, ier)
+
+    call mpi_bcast (use_hillslope, 1, MPI_LOGICAL, 0, mpicom, ier)
 
     call mpi_bcast (use_hydrstress, 1, MPI_LOGICAL, 0, mpicom, ier)
 
@@ -793,6 +801,7 @@ contains
     ! glacier_mec variables
     call mpi_bcast (maxpatch_glcmec, 1, MPI_INTEGER, 0, mpicom, ier)
     call mpi_bcast (glc_do_dynglacier, 1, MPI_LOGICAL, 0, mpicom, ier)
+    call mpi_bcast (glcmec_downscale_longwave, 1, MPI_LOGICAL, 0, mpicom, ier)
     call mpi_bcast (glc_snow_persistence_max_days, 1, MPI_INTEGER, 0, mpicom, ier)
 
     ! history file variables
@@ -963,6 +972,11 @@ contains
     write(iulog,*) '   Max snow depth (mm) =', h2osno_max
 
     write(iulog,*) '   glc number of elevation classes =', maxpatch_glcmec
+       if (glcmec_downscale_longwave) then
+          write(iulog,*) '   Longwave radiation will be downscaled'
+       else
+          write(iulog,*) '   Longwave radiation will NOT be downscaled'
+       endif
     if (glc_do_dynglacier) then
        write(iulog,*) '   glc CLM glacier areas and topography WILL evolve dynamically'
     else
@@ -995,6 +1009,7 @@ contains
     end if
 
     write(iulog,*) '   land-ice albedos      (unitless 0-1)   = ', albice
+    write(iulog,*) '   hillslope hydrology    = ', use_hillslope
     write(iulog,*) '   pre-defined soil layer structure = ', soil_layerstruct_predefined
     write(iulog,*) '   user-defined soil layer structure = ', soil_layerstruct_userdefined
     write(iulog,*) '   user-defined number of soil layers = ', soil_layerstruct_userdefined_nlevsoi
@@ -1049,14 +1064,16 @@ contains
     write(iulog, *) '  ED/FATES: '
     write(iulog, *) '    use_fates = ', use_fates
     if (use_fates) then
-       write(iulog, *) '    use_fates_spitfire = ', use_fates_spitfire
+       write(iulog, *) '    fates_spitfire_mode = ', fates_spitfire_mode
        write(iulog, *) '    use_fates_logging = ', use_fates_logging
        write(iulog, *) '    fates_paramfile = ', fates_paramfile
        write(iulog, *) '    fates_parteh_mode = ', fates_parteh_mode
        write(iulog, *) '    use_fates_planthydro = ', use_fates_planthydro
+       write(iulog, *) '    use_fates_cohort_age_tracking = ', use_fates_cohort_age_tracking
        write(iulog, *) '    use_fates_ed_st3 = ',use_fates_ed_st3
        write(iulog, *) '    use_fates_ed_prescribed_phys = ',use_fates_ed_prescribed_phys
        write(iulog, *) '    use_fates_inventory_init = ',use_fates_inventory_init
+       write(iulog, *) '    use_fates_fixed_biogeog = ', use_fates_fixed_biogeog
        write(iulog, *) '    fates_inventory_ctrl_filename = ',fates_inventory_ctrl_filename
     end if
   end subroutine control_print

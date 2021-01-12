@@ -207,7 +207,11 @@ formulation (1).
 </entry>
 
 <entry id="fire_method" type="char*80" category="clm_physics"
+<<<<<<< HEAD
        group="cnfire_inparm" valid_values="nofire,li2014qianfrc,li2016crufrc,li2021gswpfrc" >
+=======
+       group="cnfire_inparm" valid_values="nofire,li2014qianfrc,li2016crufrc,spitfire" >
+>>>>>>> hillslope_hydrology
 The method type to use for CNFire
 
 nofire:        Turn fire effects off
@@ -645,9 +649,21 @@ Toggle to turn on the FATES model
 Switch deciding which nutrient model to use in FATES.
 </entry>
 
-<entry id="use_fates_spitfire" type="logical" category="physics"
-        group="clm_inparm" valid_values="" value=".false.">
-Toggle to turn on spitfire module for modeling fire (only relevant if FATES is being used).
+<entry id="fates_spitfire_mode" type="integer" category="physics"
+        group="clm_inparm" valid_values="0,1,2,3,4" value=".false.">
+Turn on spitfire module to simulate fire by setting fates_spitfire_mode > 0.
+Relevant only if use_fates = .true.
+Allowed values are:
+ 1 : use a global constant lightning rate found in fates_params.
+ 2 : use an external lightning dataset. 
+ 3 : use an external confirmed ignitions dataset. 
+ 4 : use external lightning and population datasets to simulate both natural and anthropogenic
+ignitions.
+</entry>
+
+<entry id="use_fates_fixed_biogeog" type="logical" category="physics"
+        group="clm_inparm" valid_values="" value=".false."> 
+Toggle to turn on fixed biogeography mode (only relevant if FATES is being used).
 </entry>
 
 <entry id="use_fates_logging" type="logical" category="physics"
@@ -656,9 +672,14 @@ Toggle to turn on the logging module (only relevant if FATES is being used).
 </entry>
 
 <entry id="use_fates_planthydro" type="logical" category="physics"
-        group="clm_inparm" valid_values="" value=".false.">
-Toggle to turn on plant hydraulics (only relevant if FATES is on).
-(use_fates_planthydro=".true." is EXPERIMENTAL NOT SUPPORTED! Nor is it Tested!)
+       group="clm_inparm" valid_values="" value=".false.">
+  Toggle to turn on plant hydraulics (only relevant if FATES is on).
+  (use_fates_planthydro=".true." is EXPERIMENTAL NOT SUPPORTED! Nor is it Tested!)
+</entry>
+
+<entry id="use_fates_cohort_age_tracking" type="logical" category="physics"
+       group="clm_inparm" valid_values="" value=".false.">
+  Toggle to turn on cohort age tracking (only relevant if FATES is on).
 </entry>
 
 <entry id="use_fates_ed_st3" type="logical" category="physics"
@@ -689,6 +710,11 @@ Full pathname to the inventory initialization control file.
 Toggle to turn on the LUNA model, to effect Photosynthesis by leaf Nitrogen
 LUNA operates on C3 and non-crop vegetation (see vcmax_opt for how other veg is handled)
 LUNA: Leaf Utilization of Nitrogen for Assimilation
+</entry>
+
+<entry id="use_hillslope" type="logical" category="physics"
+        group="clm_inparm" valid_values="" value=".false.">
+Toggle to turn on the hillslope hydrology model
 </entry>
 
 <entry id="use_hydrstress" type="logical" category="physics"

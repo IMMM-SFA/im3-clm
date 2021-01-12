@@ -13,8 +13,9 @@ module clm_initializeMod
   use clm_varctl      , only : is_cold_start, is_interpolated_start
   use clm_varctl      , only : iulog
   use clm_varctl      , only : use_lch4, use_cn, use_cndv, use_c13, use_c14, use_fates
+  use clm_varctl      , only : nhillslope
   use clm_varctl      , only : use_soil_moisture_streams
-  use clm_instur      , only : wt_lunit, urban_valid, wt_nat_patch, wt_cft, fert_cft, irrig_method, wt_glc_mec, topo_glc_mec, haslake
+  use clm_instur      , only : wt_lunit, urban_valid, wt_nat_patch, wt_cft, fert_cft, irrig_method, wt_glc_mec, topo_glc_mec, haslake, ncol_per_hillslope
   use perf_mod        , only : t_startf, t_stopf
   use readParamsMod   , only : readParameters
   use ncdio_pio       , only : file_desc_t
@@ -24,9 +25,9 @@ module clm_initializeMod
   use PatchType       , only : patch         ! instance
   use reweightMod     , only : reweight_wrapup
   use filterMod       , only : allocFilters, filter, filter_inactive_and_active
-  use FatesInterfaceMod, only : set_fates_global_elements
   use dynSubgridControlMod, only: dynSubgridControl_init, get_reset_dynbal_baselines
   use SelfTestDriver, only : self_test_driver
+  use CLMFatesInterfaceMod, only : CLMFatesGlobals
 
   use clm_instMod
   use SoilMoistureStreamMod, only : PrescribedSoilMoistureInit
@@ -52,6 +53,7 @@ contains
     use clm_varcon       , only: clm_varcon_init
     use landunit_varcon  , only: landunit_varcon_init, max_lunit
     use clm_varctl       , only: fsurdat, fatmlndfrc, noland, version  
+    use clm_varctl       , only: use_hillslope
     use pftconMod        , only: pftcon       
     use decompInitMod    , only: decompInit_lnd, decompInit_clumps, decompInit_glcp, decompInit_lnd3D
     use decompInitMod    , only: decompInit_ocn
@@ -185,6 +187,9 @@ contains
     allocate (wt_glc_mec  (begg:endg, maxpatch_glcmec))
     allocate (topo_glc_mec(begg:endg, maxpatch_glcmec))
     allocate (haslake      (begg:endg                      ))
+    if(use_hillslope) then 
+       allocate (ncol_per_hillslope  (begg:endg                      ))
+    endif
     ! Read list of Patches and their corresponding parameter values
     ! Independent of model resolution, Needs to stay before surfrd_get_data
 
@@ -205,9 +210,10 @@ contains
     !
     ! (Note: fates_maxELementsPerSite is the critical variable used by CLM
     ! to allocate space)
+    ! This also sets up various global constants in FATES
     ! ------------------------------------------------------------------------
 
-    call set_fates_global_elements(use_fates)
+    call CLMFatesGlobals()
 
     ! ------------------------------------------------------------------------
     ! Determine decomposition of subgrid scale landunits, columns, patches
@@ -241,7 +247,7 @@ contains
     ! Set filters
 
     call allocFilters()
-
+ 
     nclumps = get_proc_clumps()
     !$OMP PARALLEL DO PRIVATE (nc, bounds_clump)
     do nc = 1, nclumps
@@ -270,6 +276,7 @@ contains
     ! end of the run for error checking.
 
     deallocate (wt_lunit, wt_cft, wt_glc_mec, haslake)
+    if(use_hillslope)  deallocate (ncol_per_hillslope)
 
     call t_stopf('clm_init1')
 
@@ -291,7 +298,7 @@ contains
     use clm_varcon            , only : spval
     use clm_varctl            , only : finidat, finidat_interp_source, finidat_interp_dest, fsurdat
     use clm_varctl            , only : use_century_decomp, single_column, scmlat, scmlon, use_cn, use_fates
-    use clm_varctl            , only : use_crop, ndep_from_cpl
+    use clm_varctl            , only : use_crop, ndep_from_cpl, fates_spitfire_mode
     use clm_varorb            , only : eccen, mvelpp, lambm0, obliqr
     use clm_time_manager      , only : get_step_size_real, get_curr_calday
     use clm_time_manager      , only : get_curr_date, get_nstep, advance_timestep
@@ -316,8 +323,9 @@ contains
     use controlMod            , only : NLFilename
     use clm_instMod           , only : clm_fates
     use BalanceCheckMod       , only : BalanceCheckInit
+    use CNFireFactoryMod      , only : scalar_lightning
     !
-    ! !ARGUMENTS
+    ! !ARGUMENTS    
     !
     ! !LOCAL VARIABLES:
     integer               :: c,i,j,k,l,p! indices
@@ -528,6 +536,12 @@ contains
        end if
     else
        call SatellitePhenologyInit(bounds_proc)
+
+       ! fates_spitfire_mode is assigned an integer value in the namelist
+       ! see bld/namelist_files/namelist_definition_clm4_5.xml for details
+       if (fates_spitfire_mode > scalar_lightning) then
+          call clm_fates%Init2(bounds_proc, NLFilename)
+       end if
     end if
 
     if(use_soil_moisture_streams) then 
@@ -715,7 +729,11 @@ contains
        call crop_inst%initAccVars(bounds_proc)
     end if
 
-    !------------------------------------------------------------
+    if ( use_fates )then
+       call clm_fates%initAccVars(bounds_proc)
+    end if
+
+    !------------------------------------------------------------       
     ! Read monthly vegetation
     !------------------------------------------------------------
 

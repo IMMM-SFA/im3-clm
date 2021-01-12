@@ -84,7 +84,7 @@ my %opts = (
                urban_skip_abort_on_invalid_data_check=>undef,
            );
 
-my $numpft = 78;
+my $numpft = 16; # I manually changed it to 16, it used to be 78
 
 #-----------------------------------------------------------------------------------------------
 sub usage {
