@@ -28,13 +28,9 @@ module histFileMod
   use EDTypesMod        , only : nfsc
   use FatesLitterMod    , only : ncwd
   use EDTypesMod        , only : num_elements_fates => num_elements
-<<<<<<< HEAD
-  use FatesInterfaceMod , only : maxveg_fates => numpft
-  use ncdio_pio
-=======
+!  use FatesInterfaceMod , only : maxveg_fates => numpft
   use FatesInterfaceTypesMod , only : numpft_fates => numpft
   use ncdio_pio 
->>>>>>> hillslope_hydrology
 
   !
   implicit none
@@ -2076,10 +2072,6 @@ contains
     call ncd_defdim(lnfid, 'string_length', hist_dim_name_length, strlen_dimid)
     call ncd_defdim(lnfid, 'scale_type_string_length', scale_type_strlen, dimid)
     call ncd_defdim( lnfid, 'levdcmp', nlevdecomp_full, dimid)
-<<<<<<< HEAD
-=======
-    
->>>>>>> hillslope_hydrology
 
     if(use_fates)then
        call ncd_defdim(lnfid, 'fates_levscag', nlevsclass * nlevage, dimid)
@@ -2244,12 +2236,8 @@ contains
     !
     ! !USES:
     use subgridAveMod  , only : c2g
-<<<<<<< HEAD
     use clm_varpar     , only : nlevgrnd ,nlevlak, nlevmaxurbgrnd, nlevsoi
-=======
-    use clm_varpar     , only : nlevgrnd ,nlevlak
     use clm_varctl     , only : nhillslope
->>>>>>> hillslope_hydrology
     use shr_string_mod , only : shr_string_listAppend
     use domainMod      , only : ldomain
     !
@@ -2290,7 +2278,6 @@ contains
     character(len=*),parameter :: varnamesl(nfldsl) = (/ &
                                                           'ZLAKE ', &
                                                           'DZLAKE' &
-<<<<<<< HEAD
                                                       /)
     real(r8), pointer :: histit(:,:)      ! temporary
     real(r8), pointer :: histot(:,:)
@@ -2299,9 +2286,6 @@ contains
                                                           'PCT_SAND ', &
                                                           'PCT_CLAY '  &
                                                       /)
-=======
-                                                          /)
->>>>>>> hillslope_hydrology
     !-----------------------------------------------------------------------
 
     SHR_ASSERT_ALL_FL((ubound(watsat_col)   == (/bounds%endc, nlevmaxurbgrnd/)), sourcefile, __LINE__)
@@ -4011,15 +3995,8 @@ contains
           call ncd_defdim( ncid_hist(t), 'avgflag_len'  , avgflag_strlen, dimid)
           call ncd_defdim( ncid_hist(t), 'scalar'       , 1           , dimid)
           call ncd_defdim( ncid_hist(t), 'max_chars'    , max_chars   , dimid)
-<<<<<<< HEAD
           call ncd_defdim( ncid_hist(t), 'max_nflds'    , max_nflds   ,  dimid)
           call ncd_defdim( ncid_hist(t), 'max_flds'     , max_flds    , dimid)
-
-=======
-          call ncd_defdim( ncid_hist(t), 'max_nflds'    , max_nflds   ,  dimid)   
-          call ncd_defdim( ncid_hist(t), 'max_flds'     , max_flds    , dimid)   
-          
->>>>>>> hillslope_hydrology
           call ncd_defvar(ncid=ncid_hist(t), varname='nhtfrq', xtype=ncd_int, &
                long_name="Frequency of history writes",               &
                comment="Namelist item", &
