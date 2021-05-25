@@ -38,10 +38,11 @@ For the full documentation, please see the original CTSM repository: https://git
   * `./xmlchange DATM_MODE=CLM1PT`
   * `./xmlchange DOUT_S_SAVE_INTERIM_RESTART_FILES=TRUE`
 * Update or add the following settings to the `user_nl_clm` file based on your simulation:
-  * `fsurdat = '/project/projectdirs/m2702/hongxiang/inputdata/lnd/clm2/surfdata_map/surfdata_nldas2_16pfts_simyr2000.nc'`
-  * `hist_nhtfrq = -24`
-  * `hist_mfilt  = 30`
-  * `finidata = '<path to a previous restart file, to set initial conditions, if desired>'`
+  * `fsurdat='/project/projectdirs/m2702/hongxiang/inputdata/lnd/clm2/surfdata_map/surfdata_nldas2_16pfts_simyr2000.nc'`
+  * `hist_nhtfrq=-24`
+  * `hist_mfilt=30`
+  * `finidata='<path to a previous restart file, to set initial conditions, if desired>'`
+  * `paramfile='<path to a parameter file, to tune parameters, if desired>'`
 * Create a file `user_datm.streams.txt.CLM1PT.CLM_USRDAT` that has your climate forcing data. It should look something like this:
 ```xml
 <?xml version="1.0"?>
