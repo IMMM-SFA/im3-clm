@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/369262960.svg)](https://zenodo.org/badge/latestdoi/369262960)
+
 # im3-clm
 This is the IM3 fork of CTSM, which maintains support for IM3 machines (cori and constance) as well as adds certains features to CLM which are under active development by NCAR: PPE (parameter tuning), and HH (hillslope hydrology).
 
